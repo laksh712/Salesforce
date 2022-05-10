@@ -1,0 +1,158 @@
+ CreateAccount Apex Class Code _____________________________________________________________________________________________________
+public class CreateAccount {
+ public String name {get; set;}
+ public String phoneNumber {get; set;}
+ public String  selectedname {get; set;}
+ public String websiteURL {get; set;}
+ public List<Selectoption> lstnamesel {get; set;}
+ 
+ public CreateAccount(ApexPages.StandardController controller) {
+ lstnamesel = new List<selectoption>();
+ lstnamesel.add(new selectOption('','- None -'));
+ lstnamesel.add(new selectOption('IT','IT'));
+ lstnamesel.add(new selectOption('MECH','MECH'));
+ lstnamesel.add(new selectOption('CHEM','CHEM'));
+ lstnamesel.add(new selectOption('PHARMA','PHARMA'));
+ }
+ public PageReference createAccount() {
+ System.debug('teset create');
+ if(!String.isEmpty(name)) {
+ Account accountRecord = new Account(Name = name,
+ Phone = phoneNumber,
+ Industry = selectedname,
+ Website = websiteURL);
+ INSERT accountRecord;
+ 
+ PageReference pg = new PageReference('/'+accountRecord.Id);
+ pg.setRedirect(true);
+ return pg; 
+ } else {
+ ApexPages.addmessage(new ApexPages.message(ApexPages.severity.CONFIRM,'Please enter Account Name'));
+ }
+ return NULL;
+ }
+ 
+ public PageReference cancelAccount() { 
+ PageReference pg = new PageReference('/'+Schema.SObjectType.Account.getKeyPrefix()+'/o');
+ return pg;
+ 	} 
+ }
+ 
+ 
+ 
+VisualForcePage code___________________________________________________________________
+ <apex:page standardController="Account" extensions="CreateAccount">
+ <apex:form id="apexFrom" >
+ <apex:pageBlock title="Create Account:" id="pageBlockId">
+ 
+ <apex:pageMessages id="showmsg"></apex:pageMessages>
+ <apex:pageBlockSection columns="2" >
+ <!--<div class = "requiredInput">
+ <div class = "requiredBlock"></div>
+ <apex:inputText value="{!name}" label="Account Name" required="true"/>
+ </div>-->
+ <apex:inputText value="{!name}" label="Account Name" required="true"/>
+ <apex:inputText value="{!phoneNumber}" label="Phone" />
+ <apex:selectList size="1" value="{!selectedname}" label="Industry">
+ <apex:selectOptions value="{!lstnamesel}"/>
+ </apex:selectList>
+ <apex:inputText value="{!websiteURL}" label="Website" />
+ </apex:pageBlockSection>
+ 
+ <apex:pageBlockButtons >
+ <apex:commandButton action="{!createAccount}" value="Save"/> 
+ <apex:commandButton action="{!cancelAccount}" value="Cancel"/> 
+ </apex:pageBlockButtons>
+ </apex:pageBlock>
+ 
+ <!-- ACTION FUNCTIONS-->
+ <apex:actionFunction name="createFunction" action="{!createAccount}"/>
+ <apex:actionFunction name="cancelFunction" action="{!cancelAccount}"/>
+ </apex:form>
+</apex:page>
+
+
+
+Calaculator Apex Class Code_______________________________________________________________
+public class Sample
+{   
+    public Double val1 {get;set;}
+    public Double val2 {get;set;}
+    public Double result {get;set;}
+    public String func {get;set;}
+   
+    public Sample()
+    {
+    }
+   
+    public void find()
+    {
+        if(func == 'add')
+        {
+            result = val1 + val2;
+        }
+        else if(func == 'sub')
+        {
+             result = val1 - val2;
+        }
+        else if(func == 'div')
+        {
+             result = val1 / val2;
+        }
+        else
+        {
+             Integer temp =  math.mod(Integer.valueOf(val1) , Integer.valueOf(val2));
+             result = Double.valueOf(temp);
+        }
+    }
+  
+}
+
+
+
+
+
+Visual Force Code______________
+<apex:page controller="Sample">
+
+<apex:form >
+   
+    <apex:pageBlock >
+        <apex:pageBlockSection >
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Value 1"/>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:inputText value="{!val1}"/>
+            </apex:pageBlockSectionItem>                          
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Value 2"/>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:inputText value="{!val2}"/>
+            </apex:pageBlockSectionItem>                         
+            <apex:pageBlockSectionItem >
+                <apex:selectRadio value="{!func}" layout="pageDirection">
+                    <apex:selectOption itemValue="add" itemLabel="Add"/>
+                    <apex:selectOption itemValue="sub" itemLabel="Subtract"/>
+                    <apex:selectOption itemValue="div" itemLabel="Division"/>
+                    <apex:selectOption itemValue="mod" itemLabel="Modulo Division"/>
+                </apex:selectRadio>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >               
+            </apex:pageBlockSectionItem>       
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Result"/>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:inputText value="{!result}" id="res"/><apex:actionStatus id="sts" startText="Finding..."/>
+            </apex:pageBlockSectionItem>                                      
+        </apex:pageBlockSection>   
+        <apex:pageBlockButtons >
+            <apex:commandButton value="Find" action="{!find}" reRender="res"  status="sts"/>
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+   
+</apex:form>
+
+</apex:page>
